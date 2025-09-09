@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Geo-Guardian AI — Premium Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:black; --card:#0f1720; --glass: rgba(255,255,255,0.03);
+      --accent1: #00f0c7; --accent2:#00a8ff; --muted:#93a3b8; --danger:#ff5a5a; --warn:#ffab40; --ok:#26e07b;
+      --radius:14px; --glass-border: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial;color:#e8f8fb;background:linear-gradient(180deg,var(--bg),#050506);-webkit-font-smoothing:antialiased}
+
+    .wrap{max-width:1300px;margin:28px auto;padding:26px}
+    header{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px}
+    .logo-box{display:flex;align-items:center;gap:14px}
+    .logo-mark{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,var(--accent2),var(--accent1));box-shadow:0 8px 30px rgba(0,168,255,0.08);display:flex;align-items:center;justify-content:center;color:#04121a;font-weight:800;font-size:20px}
+    h1{margin:0;font-size:44px;letter-spacing:0.6px;color:transparent;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;font-weight:800;text-align:center}
+    p.lead{margin:0;color:var(--muted);font-weight:500}
+
+    /* layout */
+    .top{display:flex;gap:18px;margin-top:18px}
+    .left{flex:2}
+    .right{flex:1;min-width:280px}
+    @media (max-width:1024px){.top{flex-direction:column} .right{min-width:unset}}
+
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:var(--radius);padding:16px;border:1px solid var(--glass-border);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    .card h2{margin:0 0 10px 0;font-size:16px;color:var(--accent2);font-weight:700}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* access */
+    .access-row{display:flex;gap:12px;align-items:center}
+    .input{flex:1;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+    .btn{padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#04121a;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(0,168,255,0.08)}
+
+    /* heatmap */
+    .heat-wrap{display:flex;flex-direction:column;gap:10px}
+    .heat-controls{display:flex;gap:8px;align-items:center}
+    .heat-canvas{width:100%;height:520px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);background:#020406;display:grid;grid-template-columns:repeat(10,1fr);gap:6px;padding:8px}
+    .sector{position:relative;padding-top:100%;border-radius:8px;overflow:hidden;}
+    .sector .label{position:absolute;left:8px;top:8px;background:rgba(0,0,0,0.35);padding:6px 8px;border-radius:6px;font-weight:700;font-size:12px}
+    .sector .temp{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,0.35);padding:6px 8px;border-radius:6px;font-weight:700;font-size:12px}
+
+    /* risk list */
+    .risk-list{display:flex;flex-direction:column;gap:10px}
+    .risk-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02)}
+    .pill{padding:6px 10px;border-radius:999px;font-weight:700;font-size:13px}
+    .pill.low{background:rgba(38,224,123,0.09);color:var(--ok)}
+    .pill.med{background:rgba(255,171,64,0.09);color:var(--warn)}
+    .pill.high{background:rgba(255,90,90,0.09);color:var(--danger)}
+
+    /* prediction */
+    .meter{height:14px;border-radius:999px;background:rgba(255,255,255,0.02);overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+    .meter > i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--warn),var(--danger));width:0%}
+    .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+
+    /* history */
+    .history {max-height:220px;overflow:auto;margin-top:10px}
+    .history-row{display:flex;justify-content:space-between;padding:8px;border-bottom:1px dashed rgba(255,255,255,0.02);font-size:13px}
+
+    /* upload */
+    .upload-area{display:flex;gap:12px;align-items:center}
+    .preview{width:260px;height:160px;border-radius:8px;background:#081018;border:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .preview img{width:100%;height:100%;object-fit:cover}
+
+    /* chart */
+    .chart-wrap{margin-top:10px}
+    canvas{width:100%;height:260px}
+
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo-box">
+        <div class="logo-mark">G</div>
+        <div style="text-align:left">
+          <div style="font-size:12px;color:var(--muted);font-weight:700">GEOTECH MONITORING</div>
+          <div style="font-size:10px;color:transparent;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;font-weight:700">Geo-Guardian AI</div>
+        </div>
+      </div>
+      <h1>Geo-Guardian AI</h1>
+      <p class="lead">Real-time drone thermal monitoring • Rockfall prediction • Sector risk insights</p>
+    </header>
+
+    <!-- Access -->
+    <div class="card" style="margin-bottom:18px">
+      <h2>Official Access</h2>
+      <div class="muted">Company officials — enter your unique ID to access secure mine data (demo auth).</div>
+      <div style="height:12px"></div>
+      <div class="access-row">
+        <input id="userId" class="input" placeholder="Enter Unique User ID (e.g. GG-OPS-001)" />
+        <button class="btn" id="accessBtn">Access</button>
+      </div>
+    </div>
+
+    <div class="top">
+      <div class="left">
+        <div class="card heat-wrap">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2>Live Drone Thermal Map</h2>
+              <div class="muted">Authentic thermal feed simulated. Colors: <strong style="color:var(--danger)">Red</strong> = High anomaly, <strong style="color:var(--warn)">Orange</strong> = Moderate, <strong style="color:var(--ok)">Green</strong> = Safe</div>
+            </div>
+            <div class="heat-controls">
+              <label class="muted">Grid:</label>
+              <select id="gridSize" class="input" style="width:110px">
+                <option value="10">10 × 8</option>
+                <option value="12">12 × 8</option>
+              </select>
+              <button class="btn" id="refreshHeat">Refresh</button>
+            </div>
+          </div>
+
+          <div id="heatCanvas" class="heat-canvas" aria-hidden="false"></div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h2>Image Upload & Reference</h2>
+          <div class="muted">Upload drone imagery for analysis. Default shows a mine disaster example for reference.</div>
+          <div style="height:10px"></div>
+          <div class="upload-area">
+            <input id="imgUpload" type="file" accept="image/*" />
+            <div class="preview" id="preview"><img id="previewImg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/2010_Chile_mine_collapse.jpg/640px-2010_Chile_mine_collapse.jpg" alt="Mine Disaster"/></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="card">
+          <h2>Sectors at Risk</h2>
+          <div class="muted">Top sectors flagged by thermal anomaly and variance.</div>
+          <div style="height:12px"></div>
+          <div class="risk-list" id="riskList"></div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h2>Rockfall Probability</h2>
+          <div class="muted">Run prediction to get overall probability and save history.</div>
+          <div style="height:10px"></div>
+          <div class="meter"><i id="probMeter"></i></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <div><strong id="probText">Probability: 0%</strong><div class="muted" id="probHint">Status: --</div></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn" id="runPred">Run Prediction</button>
+              <button class="btn" id="clearHist" style="background:#222;color:var(--accent2)">Clear</button>
+            </div>
+          </div>
+
+          <div class="history" id="history"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card chart-wrap">
+      <h2>Probability Trend</h2>
+      <canvas id="trendChart"></canvas>
+    </div>
+
+    <footer>Geo-Guardian AI — Demo dashboard. Connect to your backend/drone feed for production deployment.</footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // ---------------- state ----------------
+    const state = {
+        cols:10,
+        rows:8,
+        cells:[],
+        history: JSON.parse(localStorage.getItem('gg_history')||'[]'),
+        lastProbability: 0.5 // Initialize with moderate probability
+    };
+
+    // ---------------- utilities ----------------
+    function sectorLabel(i){ const r=Math.floor(i/state.cols), c=i%state.cols; return String.fromCharCode(65+r)+(c+1); }
+    function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+    function variance(arr){ if(!arr||arr.length<2) return 0; const m=arr.reduce((s,x)=>s+x,0)/arr.length; return arr.reduce((s,x)=>s+(x-m)*(x-m),0)/arr.length }
+
+    // color map: green (safe) -> orange (warn) -> red (danger)
+    function tempColor(t){ if(t>=75) return 'linear-gradient(180deg, rgba(255,90,90,0.98), rgba(200,50,50,0.95))'; if(t>=50) return 'linear-gradient(180deg, rgba(255,171,64,0.95), rgba(220,130,30,0.9))'; return 'linear-gradient(180deg, rgba(38,224,123,0.9), rgba(18,180,100,0.85))'; }
+
+    // ---------------- heatmap simulation ----------------
+    function initCells(){ state.cells = []; for(let i=0;i<state.rows*state.cols;i++){ state.cells.push({idx:i, last:[] , t:20}); } }
+    function stepThermal(){
+        const tBase = Date.now()*0.0006;
+        const globalTime = Date.now() * 0.00002; // Slower global time factor
+
+        // Add global environmental factors
+        const windEffect = Math.sin(globalTime) * 2;
+        const humidityEffect = Math.cos(globalTime * 0.7) * 1.5;
+        const solarRadiation = Math.sin(globalTime * 0.3) * 3;
+
+        for(const c of state.cells){
+            const r=Math.floor(c.idx/state.cols), col=c.idx%state.cols;
+
+            // Enhanced wave calculations with more complexity
+            const wave1 = 12*Math.sin(0.8*r + 1.05*col + tBase);
+            const wave2 = 6*Math.cos(0.4*r*col + tBase*0.9);
+            const wave3 = 4*Math.sin(1.2*r - 0.7*col + tBase*0.6); // Additional wave
+
+            // Base temperature with position-based variation
+            const base = 30 + 10*Math.abs(Math.sin((r+1)*(col+1)*0.05));
+
+            // Enhanced noise with different frequencies
+            const noise1 = (Math.random()-0.5)*3;
+            const noise2 = (Math.random()-0.5)*2;
+            const noise3 = (Math.random()-0.5)*1;
+
+            // Sector-specific factors
+            const sectorFactor = Math.sin(r*0.5 + col*0.3) * 5;
+
+            // Combine all factors
+            const temp = clamp(
+                base + wave1 + wave2 + wave3 +
+                noise1 + noise2 + noise3 +
+                windEffect + humidityEffect + solarRadiation +
+                sectorFactor,
+                10, 95
+            );
+
+            c.t = temp;
+            c.last.push(temp);
+            if(c.last.length>18) c.last.shift();
+        }
+    }
+
+    function renderHeat(){ const container=document.getElementById('heatCanvas'); container.innerHTML=''; for(const c of state.cells){ const el=document.createElement('div'); el.className='sector'; el.innerHTML=`<div style="position:absolute;inset:0;border-radius:8px;background:${tempColor(c.t)}"></div><div class='label'>${sectorLabel(c.idx)}</div><div class='temp'>${c.t.toFixed(0)}°</div>`; el.addEventListener('mouseenter', ()=> showTooltip(c,el)); el.addEventListener('mouseleave', hideTooltip); container.appendChild(el); } }
+
+    // tooltip simple
+    let ttNode=null; function showTooltip(cell, el){ hideTooltip(); ttNode=document.createElement('div'); ttNode.style.position='absolute'; ttNode.style.right='12px'; ttNode.style.top='12px'; ttNode.style.padding='8px 10px'; ttNode.style.background='rgba(2,6,23,0.9)'; ttNode.style.border='1px solid rgba(255,255,255,0.03)'; ttNode.style.borderRadius='8px'; ttNode.style.zIndex=60; ttNode.innerHTML=`<div style="font-weight:700">${sectorLabel(cell.idx)}</div><div style="font-size:13px;color:${'rgba(200,220,230,0.8)'}">Temp: ${cell.t.toFixed(2)}°C</div><div style="font-size:12px;color:var(--muted)">Var: ${variance(cell.last).toFixed(2)}</div>`; el.appendChild(ttNode); }
+    function hideTooltip(){ if(ttNode && ttNode.parentNode) ttNode.parentNode.removeChild(ttNode); ttNode=null; }
+
+    // ---------------- risk list ----------------
+    function computeRiskScore(cell,thr=50){ const over=Math.max(0, cell.t - thr); const v=variance(cell.last); return over + 0.4*v; }
+    function renderRiskList(){ const thr = 50; const list=document.getElementById('riskList'); const ranked = [...state.cells].map(c=>({c,score:computeRiskScore(c,thr)})).sort((a,b)=>b.score-a.score).slice(0,8); list.innerHTML=''; for(const it of ranked){ const lvl = it.c.t>thr+15? 'high' : it.c.t>thr+4? 'med' : 'low'; const row=document.createElement('div'); row.className='risk-item'; row.innerHTML=`<div><strong>${sectorLabel(it.c.idx)}</strong><div class='muted' style='font-size:12px'>${it.c.t.toFixed(1)}° • var ${variance(it.c.last).toFixed(2)}</div></div><div class='pill ${lvl}'>${lvl.toUpperCase()}</div>`; list.appendChild(row); } }
+
+    // ---------------- prediction engine ----------------
+    function computeProbability(){
+        const thr=55;
+        let surplus=0,varsum=0,hot=0;
+
+        // Calculate base metrics
+        for(const c of state.cells){
+            const over=Math.max(0,c.t-thr);
+            surplus+=over;
+            const v=variance(c.last);
+            varsum+=v;
+            if(over>6) hot++;
+        }
+
+        const n=state.cells.length;
+        const tFac = clamp(surplus/(n*18),0,1);
+        const vFac = clamp((varsum/n)/30,0,1);
+
+        // Base probability calculation
+        let p = 0.08 + 0.66*tFac + 0.26*vFac;
+
+        // Add time-based variations (creates natural fluctuations)
+        const timeNow = Date.now();
+        const timeFactor = Math.sin(timeNow * 0.0001) * 0.15; // Slow oscillation
+        const randomFactor = (Math.random() - 0.5) * 0.2; // Random noise
+
+        // Environmental factors that fluctuate
+        const weatherImpact = Math.sin(timeNow * 0.00005) * 0.1; // Weather patterns
+        const seismicNoise = Math.random() * 0.05; // Micro-seismic activity
+
+        // Sudden event simulation (occasional spikes)
+        const suddenEvent = Math.random() < 0.02 ? (Math.random() * 0.3) : 0;
+
+        // Combine all factors
+        p += timeFactor + randomFactor + weatherImpact + seismicNoise + suddenEvent;
+
+        // Enhanced threshold logic with more variation
+        if(tFac>0.7) p += 0.12*(tFac-0.7)/0.3;
+        if(vFac>0.8) p += 0.08*(vFac-0.8)/0.2; // High variance increases risk
+        if(hot > n*0.3) p += 0.15; // Many hotspots = higher risk
+
+        // Add some hysteresis to prevent too much fluctuation
+        const prevProb = state.lastProbability || 0.5;
+        const maxChange = 0.15; // Maximum change per calculation
+        p = clamp(p, prevProb - maxChange, prevProb + maxChange);
+
+        p = clamp(p,0,0.99);
+        state.lastProbability = p;
+
+        return {p,hot};
+    }
+
+    function setProbability(p){ const pct=Math.round(p*100); document.getElementById('probMeter').style.width = pct+'%'; document.getElementById('probText').textContent = `Probability: ${pct}%`; const hint = pct>70? 'High risk — consider evacuation' : pct>40? 'Elevated — increase monitoring' : 'Low — normal operations'; document.getElementById('probHint').textContent = 'Status: '+hint; }
+
+    function runPrediction(){ const {p,hot} = computeProbability(); setProbability(p); const rec = {ts:new Date().toISOString(),prob:Math.round(p*100),hotspots:hot}; state.history.push(rec); if(state.history.length>200) state.history.shift(); localStorage.setItem('gg_history', JSON.stringify(state.history)); renderHistory(); drawTrend(); }
+
+    function renderHistory(){ const container=document.getElementById('history'); container.innerHTML=''; const rows=[...state.history].slice(-20).reverse(); for(const r of rows){ const el=document.createElement('div'); el.className='history-row'; const d=new Date(r.ts); el.innerHTML=`<div>${d.toLocaleString()}</div><div><strong>${r.prob}%</strong> • ${r.hotspots} hotspots</div>`; container.appendChild(el); } }
+
+    // ---------------- chart ----------------
+    const ctx = document.getElementById('trendChart').getContext('2d'); const chart = new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Rockfall Probability',data:[],borderColor:'rgba(0,168,255,0.95)',backgroundColor:'rgba(0,168,255,0.12)',fill:true,tension:0.25}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100},x:{display:false}}}});
+    function drawTrend(){ const data = state.history.slice(-40).map(x=>x.prob); chart.data.labels = data.map((_,i)=>i+1); chart.data.datasets[0].data = data; chart.update(); }
+
+    // ---------------- upload preview ----------------
+    document.getElementById('imgUpload').addEventListener('change', (e)=>{ const f=e.target.files[0]; if(!f) return; const url=URL.createObjectURL(f); document.getElementById('previewImg').src=url; });
+
+    // ---------------- controls ----------------
+    document.getElementById('accessBtn').addEventListener('click', ()=>{ const id=document.getElementById('userId').value.trim(); if(!id){ alert('Enter your user ID'); return; } alert('Demo access granted for '+id); });
+    document.getElementById('gridSize').addEventListener('change', (e)=>{ state.cols = parseInt(e.target.value,10); resetHeat(); });
+    document.getElementById('refreshHeat').addEventListener('click', resetHeat);
+    document.getElementById('runPred').addEventListener('click', runPrediction);
+    document.getElementById('clearHist').addEventListener('click', ()=>{ if(confirm('Clear stored history?')){ state.history=[]; localStorage.removeItem('gg_history'); renderHistory(); drawTrend(); } });
+
+    // ---------------- main loop ----------------
+    function resetHeat(){ initCells(); renderHeat(); }
+    function tick(){ stepThermal(); renderHeat(); renderRiskList(); }
+    initCells(); // set initial
+    // warm history from storage
+    state.history = JSON.parse(localStorage.getItem('gg_history')||'[]'); renderHistory(); drawTrend();
+    // run ticks
+    setInterval(tick, 2000);
+    // run initial few steps for realistic last buffers
+    for(let i=0;i<6;i++){ stepThermal(); }
+    renderHeat(); renderRiskList();
+
+  </script>
+</body>
+</html>

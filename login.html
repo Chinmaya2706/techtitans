@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Signup</title>
+    <link rel="stylesheet" href="loginstyle.css">
+</head>
+<body>
+    <div class="container">
+        <div id="login-form">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label for="login-username">Username:</label>
+                <input type="text" id="login-username" name="login-username">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" name="login-password">
+            </div>
+            <button onclick="login()">Login</button>
+            <div class="switch-form" onclick="showSignup()">Don't have an account? Sign up</div>
+        </div>
+
+        <div id="signup-form" class="hidden">
+            <h2>Sign Up</h2>
+            <div class="form-group">
+                <label for="signup-username">Username:</label>
+                <input type="text" id="signup-username" name="signup-username">
+            </div>
+            <div class="form-group">
+                <label for="signup-email">Email:</label>
+                <input type="email" id="signup-email" name="signup-email">
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password:</label>
+                <input type="password" id="signup-password" name="signup-password">
+            </div>
+            <button onclick="signup()">Sign Up</button>
+            <div class="switch-form" onclick="showLogin()">Already have an account? Login</div>
+        </div>
+    </div>
+
+    <script>
+        function showSignup() {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+
+            loginForm.style.opacity = '0';
+            loginForm.style.transform = 'translateX(-10px)';
+
+            setTimeout(() => {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+
+                setTimeout(() => {
+                    signupForm.style.opacity = '1';
+                    signupForm.style.transform = 'translateX(0)';
+                }, 50);
+            }, 200);
+        }
+
+        function showLogin() {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+
+            signupForm.style.opacity = '0';
+            signupForm.style.transform = 'translateX(10px)';
+
+            setTimeout(() => {
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+
+                setTimeout(() => {
+                    loginForm.style.opacity = '1';
+                    loginForm.style.transform = 'translateX(0)';
+                }, 50);
+            }, 200);
+        }
+
+        function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            if(!username || !password){
+                alert("Please enter both username and password.");
+                return;
+            }
+
+            alert(`Logging in with username: ${username} and password: ${password}`);
+            window.location.href = 'main.html';
+        }
+
+        function signup() {
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            if(!username || !email || !password){
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            alert(`Signing up with username: ${username}, email: ${email}, and password: ${password}`);
+            window.location.href = 'main.html';
+        }
+    </script>
+
+</body>
+</html>

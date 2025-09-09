@@ -43,39 +43,13 @@
 
     <script>
         function showSignup() {
-            const loginForm = document.getElementById('login-form');
-            const signupForm = document.getElementById('signup-form');
-
-            loginForm.style.opacity = '0';
-            loginForm.style.transform = 'translateX(-10px)';
-
-            setTimeout(() => {
-                loginForm.classList.add('hidden');
-                signupForm.classList.remove('hidden');
-
-                setTimeout(() => {
-                    signupForm.style.opacity = '1';
-                    signupForm.style.transform = 'translateX(0)';
-                }, 50);
-            }, 200);
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('signup-form').classList.remove('hidden');
         }
 
         function showLogin() {
-            const loginForm = document.getElementById('login-form');
-            const signupForm = document.getElementById('signup-form');
-
-            signupForm.style.opacity = '0';
-            signupForm.style.transform = 'translateX(10px)';
-
-            setTimeout(() => {
-                signupForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-
-                setTimeout(() => {
-                    loginForm.style.opacity = '1';
-                    loginForm.style.transform = 'translateX(0)';
-                }, 50);
-            }, 200);
+            document.getElementById('signup-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
         }
 
         function login() {
@@ -108,3 +82,4 @@
 
 </body>
 </html>
+
